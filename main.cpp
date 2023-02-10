@@ -6,10 +6,13 @@
 
 #include <iostream>
 #include <cstring>
+#include <fstream>
 #include "student.h"
 #include "node.h"
 
 using namespace std;
+
+void help();
 
 int main() {
   int bucketSize = 100;
@@ -25,7 +28,7 @@ int main() {
   // main code, running will stay true until user says "QUIT"
   while (running == true) {
     cout << "---------------------------------------------------------------" << endl;
-    cout << "What Would You Like To Do? (ADD/PRINT/DELETE/QUIT/HELP)" << endl;
+    cout << "What Would You Like To Do? (ADD/GENERATE/PRINT/DELETE/QUIT/HELP)" << endl;
 
     cin.get(input, 10);
     cin.ignore(1, '\n');
@@ -79,12 +82,16 @@ int main() {
         cout << "Error" << endl;
       }
     }
+    else if (input[0] == 'G' || input[0] == 'g') { // generates random students
+      ifstream firstNames;
+      firstNames.open("firstname.txt");
+    }
     else if (input[1] == 'R' || input[1] == 'r') { // prints all students inputted
       for (int i = 0; i < bucketSize; i++) {
         if (hashTable[i] != NULL) {
           Node* temp = hashTable[i];
           while (temp != NULL) {
-            cout << temp->getStudent()->get_first_name() << ", " << temp->getStudent()->get_last_name() << ", " << temp->getStudent()->get_id() << ", " << temp->getStudent()->get_gpa() << endl;
+            cout << temp->getStudent()->get_first_name() << " " << temp->getStudent()->get_last_name() << ", " << temp->getStudent()->get_id() << ", " << temp->getStudent()->get_gpa() << endl;
             temp = temp->getNext();
           }
         }
@@ -96,7 +103,7 @@ int main() {
       cin >> studentID;
       cin.ignore();
 
-      int hashIndex = studentID % 100;
+      int hashIndex = studentID % bucketSize;
 
       if (hashTable[hashIndex] != NULL) {
         Node* temp = hashTable[hashIndex];
@@ -127,13 +134,13 @@ int main() {
       running = false;
     }
     else if (input[0] == 'H' || input[0] == 'h') { // prints help message
-      help();
-    }
-    else {
       cout << "Type \"ADD\" To Enter A New Student" << endl;
       cout << "Type \"PRINT\" To Print Out All Stored Students" << endl;
       cout << "Type \"DELETE\" To Delete A Student" << endl;
       cout << "Type \"QUIT\" To End Program" << endl;
+    }
+    else {
+      cout << "Not Sure What You're Trying to Do" << endl;
     }
   }  
   return 0;
