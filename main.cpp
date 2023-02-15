@@ -83,8 +83,54 @@ int main() {
       }
     }
     else if (input[0] == 'G' || input[0] == 'g') { // generates random students
+      int studentCount = 0;
       ifstream firstNames;
       firstNames.open("firstname.txt");
+
+      char* fName = new char[50];
+      for (int i = 0; i < 50; i++) {
+        if (firstNames.eof()) {
+          break;
+        }
+        else {
+          fName[i] = firstNames.get();
+          studentCount++;
+        }
+      }
+      fName[strlen(fName)-1] = '\0';
+      firstNames.close();
+
+      ifstream lastNames;
+      lastNames.open("lastname.txt");
+
+      char* lName = new char[studentCount];
+      for (int i = 0; i < 50; i++) {
+        if (lastNames.eof()) {
+         break;
+        }
+        else {
+          lName[i] = lastNames.get();
+        }
+      }
+      lName[strlen(lName)-1] = '\0';
+      lastNames.close();
+
+      int generateStudent = 0;
+      cout << "How Many Students Would You Like To Generate? " << endl;
+      cin >> generateStudent;
+      cin.ignore();
+
+      char firstName[20];
+      char lastName[20];
+      int studentID = 0;
+      float gpa = 0.0;
+      Student* newStudent = new Student(firstName, lastName, studentID, gpa);
+      for (int i = 0; i < generateStudent; i++) {
+        newStudent->set_first_name(fName[i]);
+        newStudent->set_last_name(lName[i]);
+        newStudent->set_id(rand() % 1000000);
+        newStudent->set_gpa((rand() % 500) / 100.0);
+      }
     }
     else if (input[1] == 'R' || input[1] == 'r') { // prints all students inputted
       for (int i = 0; i < bucketSize; i++) {
