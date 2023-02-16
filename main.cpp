@@ -12,11 +12,13 @@
 
 using namespace std;
 
-void help();
+void rehash(int &bucketSize, Node** &hashTable);
 
 int main() {
-  int bucketSize = 100;
-  Node* hashTable[bucketSize];
+  srand(time(NULL));
+  int initialBucket = 100;
+  int bucketSize = initialBucket;
+  Node** hashTable = new Node*[bucketSize];
 
   for (int i = 0; i < bucketSize; i++) {
     hashTable[i] = NULL;
@@ -66,7 +68,7 @@ int main() {
 
       Node* newNode = new Node(newStudent);
       
-      int hashIndex = newStudent->get_id() % 100;
+      int hashIndex = newStudent->get_id() % bucketSize;
 
       if (hashTable[hashIndex] == NULL) {
         hashTable[hashIndex] = newNode;
@@ -81,38 +83,59 @@ int main() {
       else {
         cout << "Error" << endl;
       }
+
+      // rehash if any bucket has more than 3 students
+      for (int i = 0; i < bucketSize; i++) {
+        if (hashTable[i] != NULL) {
+          Node* temp = hashTable[i];
+          int count = 0;
+          while (temp != NULL) {
+            count++;
+            temp = temp->getNext();
+          }
+          if (count > 3) {
+            rehash(bucketSize, hashTable);
+          }
+        }
+      }
     }
     else if (input[0] == 'G' || input[0] == 'g') { // generates random students
       int studentCount = 0;
+      char* firstcpy = new char[20];
+      char* lastcpy = new char[20];
       ifstream firstNames;
       firstNames.open("firstname.txt");
 
-      char* fName = new char[50];
+      char** fName = new char*[50];
       for (int i = 0; i < 50; i++) {
         if (firstNames.eof()) {
           break;
         }
         else {
-          fName[i] = firstNames.get();
+          fName[i] = new char[20];
+          firstNames >> firstcpy;
+          strcpy(fName[i], firstcpy);
           studentCount++;
         }
       }
-      fName[strlen(fName)-1] = '\0';
+      fName[studentCount] = NULL;
       firstNames.close();
 
       ifstream lastNames;
       lastNames.open("lastname.txt");
 
-      char* lName = new char[studentCount];
+      char** lName = new char*[studentCount];
       for (int i = 0; i < 50; i++) {
         if (lastNames.eof()) {
          break;
         }
         else {
-          lName[i] = lastNames.get();
+          lName[i] = new char[20];
+          lastNames >> lastcpy;
+          strcpy(lName[i], lastcpy);
         }
       }
-      lName[strlen(lName)-1] = '\0';
+      lName[studentCount] = NULL;
       lastNames.close();
 
       int generateStudent = 0;
@@ -126,13 +149,48 @@ int main() {
       float gpa = 0.0;
       Student* newStudent = new Student(firstName, lastName, studentID, gpa);
       for (int i = 0; i < generateStudent; i++) {
-        newStudent->set_first_name(fName[i]);
-        newStudent->set_last_name(lName[i]);
-        newStudent->set_id(rand() % 1000000);
+        char firsttemp[20];
+        char lasttemp[20];
+        int randFirst = rand() % studentCount;
+        int randLast = rand() % studentCount;
+        strncpy(firsttemp, fName[randFirst], 20);
+        strncpy(lasttemp, lName[randLast], 20);
+        newStudent->set_first_name(firsttemp);
+        newStudent->set_last_name(lasttemp);
+        newStudent->set_id(rand() % 100000);
         newStudent->set_gpa((rand() % 500) / 100.0);
+
+        Node* newNode = new Node(newStudent);
+        int hashIndex = newStudent->get_id() % bucketSize;
+
+        if (hashTable[hashIndex] == NULL) {
+          hashTable[hashIndex] = newNode;
+        }
+        else if (hashTable[hashIndex] != NULL) {
+          Node* temp = hashTable[hashIndex];
+          while (temp->getNext() != NULL) {
+            temp = temp->getNext();
+          }
+          temp->setNext(newNode);
+        }
+        // rehash if any bucket has more than 3 students
+        for (int i = 0; i < bucketSize; i++) {
+          if (hashTable[i] != NULL) {
+            Node* temp = hashTable[i];
+            int count = 0;
+            while (temp != NULL) {
+              count++;
+              temp = temp->getNext();
+            }
+            if (count > 3) {
+              rehash(bucketSize, hashTable);
+            }
+          }
+        }
       }
     }
     else if (input[1] == 'R' || input[1] == 'r') { // prints all students inputted
+      cout << bucketSize << endl;
       for (int i = 0; i < bucketSize; i++) {
         if (hashTable[i] != NULL) {
           Node* temp = hashTable[i];
@@ -190,4 +248,34 @@ int main() {
     }
   }  
   return 0;
+}
+// when called, it will double the bucket size and rehash all students
+void rehash(int &bucketSize, Node** &hashTable) {
+  bucketSize = bucketSize * 2;
+  Node** temp = new Node*[bucketSize];
+  for (int i = 0; i < bucketSize; i++) {
+    temp[i] = NULL;
+  }
+  for (int i = 0; i < bucketSize / 2; i++) {
+    if (hashTable[i] != NULL) {
+      Node* temp2 = hashTable[i];
+      while (temp2 != NULL) {
+        Node* newNode = new Node(temp2->getStudent());
+        int hashIndex = temp2->getStudent()->get_id() % bucketSize;
+        if (temp[hashIndex] == NULL) {
+          temp[hashIndex] = newNode;
+        }
+        else if (temp[hashIndex] != NULL) {
+          Node* temp3 = temp[hashIndex];
+          while (temp3->getNext() != NULL) {
+            temp3 = temp3->getNext();
+          }
+          temp3->setNext(newNode);
+        }
+        temp2 = temp2->getNext();
+      }
+    }
+  }
+  hashTable = temp;
+  cout << "Rehashing" << endl;
 }
