@@ -190,7 +190,6 @@ int main() {
       }
     }
     else if (input[1] == 'R' || input[1] == 'r') { // prints all students inputted
-      cout << bucketSize << endl;
       for (int i = 0; i < bucketSize; i++) {
         if (hashTable[i] != NULL) {
           Node* temp = hashTable[i];
@@ -277,5 +276,4 @@ void rehash(int &bucketSize, Node** &hashTable) {
     }
   }
   hashTable = temp;
-  cout << "Rehashing" << endl;
 }
