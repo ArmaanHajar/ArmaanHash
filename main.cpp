@@ -1,7 +1,7 @@
 /*
  * Author: Armaan Hajar
- * Program:
- * Date:
+ * Program: A simple hash table that stores student information and rehashes when necessary
+ * Date: 2/16/2023
  */
 
 #include <iostream>
@@ -20,6 +20,7 @@ int main() {
   int bucketSize = initialBucket;
   Node** hashTable = new Node*[bucketSize];
 
+  // initialize hash table
   for (int i = 0; i < bucketSize; i++) {
     hashTable[i] = NULL;
   }
@@ -70,6 +71,7 @@ int main() {
       
       int hashIndex = newStudent->get_id() % bucketSize;
 
+      // adds student to hash table
       if (hashTable[hashIndex] == NULL) {
         hashTable[hashIndex] = newNode;
       }
@@ -103,6 +105,8 @@ int main() {
       int studentCount = 0;
       char* firstcpy = new char[20];
       char* lastcpy = new char[20];
+
+      // opens first name file and stores in array
       ifstream firstNames;
       firstNames.open("firstname.txt");
 
@@ -121,6 +125,7 @@ int main() {
       fName[studentCount] = NULL;
       firstNames.close();
 
+      // opens last name file and stores in array
       ifstream lastNames;
       lastNames.open("lastname.txt");
 
@@ -148,7 +153,7 @@ int main() {
       int studentID = 0;
       float gpa = 0.0;
       Student* newStudent = new Student(firstName, lastName, studentID, gpa);
-      for (int i = 0; i < generateStudent; i++) {
+      for (int i = 0; i < generateStudent; i++) { // generates random students
         char firsttemp[20];
         char lasttemp[20];
         int randFirst = rand() % studentCount;
@@ -160,6 +165,7 @@ int main() {
         newStudent->set_id(rand() % 100000);
         newStudent->set_gpa((rand() % 500) / 100.0);
 
+        // adds students to hash table
         Node* newNode = new Node(newStudent);
         int hashIndex = newStudent->get_id() % bucketSize;
 
@@ -208,6 +214,7 @@ int main() {
 
       int hashIndex = studentID % bucketSize;
 
+      // deletes student
       if (hashTable[hashIndex] != NULL) {
         Node* temp = hashTable[hashIndex];
         Node* prev = NULL;
@@ -251,10 +258,12 @@ int main() {
 // when called, it will double the bucket size and rehash all students
 void rehash(int &bucketSize, Node** &hashTable) {
   bucketSize = bucketSize * 2;
+  // creates new hash table
   Node** temp = new Node*[bucketSize];
   for (int i = 0; i < bucketSize; i++) {
     temp[i] = NULL;
   }
+  // rehashes all students
   for (int i = 0; i < bucketSize / 2; i++) {
     if (hashTable[i] != NULL) {
       Node* temp2 = hashTable[i];
